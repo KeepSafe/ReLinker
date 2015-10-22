@@ -1,20 +1,52 @@
 # ReLinker
 
+A robust native library loader for Android.
+
 ## Overview
 
-Unfortunately Android's PackageManager seems to be flaky with its ability to properly install native libraries from your APK on older Android versions. ReLinker is here to alleviate that problem by replacing the standard `System.loadLibrary` call
+The Android `PackageManager`'s native library loading is unreliable. Occasionally when using native libraries, you will encounter a stack trace like this:
+
+```
+java.lang.UnsatisfiedLinkError: Couldn't load stlport_shared from loader dalvik.system.PathClassLoader: findLibrary returned null
+at java.lang.Runtime.loadLibrary(Runtime.java:365)
+at java.lang.System.loadLibrary(System.java:535)
+at com.kii.safe.Native.<clinit>(Native.java:16)
+... 63 more
+
+Caused by: java.lang.UnsatisfiedLinkError: Library stlport_shared not found
+at java.lang.Runtime.loadLibrary(Runtime.java:461)
+at java.lang.System.loadLibrary(System.java:557)
+at com.kii.safe.Native.<clinit>(Native.java:16)
+... 5 more
+```
+
+ReLinker fixes these issues by replacing the standard `System.loadLibrary` call with a more reliable implementation.
+
+Note that this library fixes intermittent link errors; if you get an error every time you use your app, you may have a configuration issue. See [this StackOverflow question](http://stackoverflow.com/questions/27421134/system-loadlibrary-couldnt-find-native-library-in-my-case) for more information.
 
 ## Installation
 
 Add the following dependency to your gradle build file:
 
-    dependencies {
-        compile 'com.getkeepsafe.relinker:library:1.0'
-    }
+```groovy
+dependencies {
+    compile 'com.getkeepsafe.relinker:library:1.0'
+}
+```
 
 ## Usage
 
-Instead of calling `System.loadLibrary`, simply call `ReLinker.loadLibrary`. Note that ReLinker require's a `Context`, which can and should be your Application's context.
+Simply replace a call to `System.loadLibrary` like this:
+
+```java
+System.loadLibrary("mylibrary");
+```
+
+With a call to `ReLinker.loadLibrary` like this:
+
+```java
+ReLinker.loadLibrary(context, "mylibrary");
+```
 
 ## Sample application
 
