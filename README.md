@@ -1,4 +1,6 @@
-# ReLinker
+# ReLinker 
+
+[![Release](https://img.shields.io/github/release/KeepSafe/ReLinker.svg?label=maven)](https://jitpack.io/#KeepSafe/ReLinker)
 
 A robust native library loader for Android.
 
@@ -26,12 +28,19 @@ Note that this library fixes intermittent link errors; if you get an error every
 
 ## Installation
 
-Add the following dependency to your gradle build file:
+ReLinker is distributed using [jitpack](https://jitpack.io).
+
+To use ReLinker in your project, add the following to your gradle build file:
 
 ```groovy
-dependencies {
-    compile 'com.getkeepsafe.relinker:library:1.0'
-}
+   repositories { 
+        jcenter()
+        maven { url "https://jitpack.io" }
+   }
+   
+   dependencies {
+         compile 'com.github.KeepSafe:ReLinker:1.0'
+   }
 ```
 
 ## Usage
