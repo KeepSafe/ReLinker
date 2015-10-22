@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    mavenCentral()
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "22.0.1"
@@ -27,4 +31,6 @@ android {
 
 dependencies {
     compile project(':library')
+    testCompile 'junit:junit:4.10'
 }
+

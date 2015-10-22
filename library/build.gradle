@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 
+group = GROUP
+version = VERSION_NAME
+
 android {
     compileSdkVersion 23
     buildToolsVersion "22.0.1"
@@ -18,6 +21,19 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+android.libraryVariants.all { variant ->
+    task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+        // title = ''
+        // description = ''
+        source = variant.javaCompile.source
+        classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+        options {
+            links "http://docs.oracle.com/javase/7/docs/api/"
+            linksOffline "http://d.android.com/reference","${android.sdkDirectory}/docs/reference"
+        }
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+    }
 }
+
+apply from: file('../gradle/gradle-mvn-push.gradle')
