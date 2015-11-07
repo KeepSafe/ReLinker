@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/release/KeepSafe/ReLinker.svg?label=maven)](https://jitpack.io/#KeepSafe/ReLinker)
 
-A robust native library loader for Android.
+A robust native library loader for Android. More information can be found in our [blog post](https://medium.com/keepsafe-engineering/the-perils-of-loading-native-libraries-on-android-befa49dce2db)
 
 ## Overview
 
