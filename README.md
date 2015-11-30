@@ -41,7 +41,7 @@ To use ReLinker in your project, add the following to your gradle build file:
    }
    
    dependencies {
-         compile 'com.github.KeepSafe:ReLinker:1.0'
+         compile 'com.github.KeepSafe:ReLinker:1.1'
    }
 ```
 
