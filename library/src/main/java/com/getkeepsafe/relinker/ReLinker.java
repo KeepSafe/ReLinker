@@ -120,10 +120,10 @@ public class ReLinker {
 
             tries = 0;
             while (tries++ < MAX_TRIES) {
-                String jniNameInApk;
+                String jniNameInApk = null;
                 ZipEntry libraryEntry = null;
 
-                if (Build.VERSION.SDK_INT >= 21) {
+                if (Build.VERSION.SDK_INT >= 21 && Build.SUPPORTED_ABIS.length > 0) {
                     for (final String ABI : Build.SUPPORTED_ABIS) {
                         jniNameInApk = "lib/" + ABI + "/" + System.mapLibraryName(library);
                         libraryEntry = zipFile.getEntry(jniNameInApk);
@@ -140,7 +140,11 @@ public class ReLinker {
 
                 if (libraryEntry == null) {
                     // Does not exist in the APK
-                    break;
+                    if (jniNameInApk != null) {
+                        throw new MissingLibraryException(jniNameInApk);
+                    } else {
+                        throw new MissingLibraryException(library);
+                    }
                 }
 
                 final File outputFile = getWorkaroundLibFile(context, library);
@@ -215,5 +219,11 @@ public class ReLinker {
                 closeable.close();
             }
         } catch (IOException ignored) {}
+    }
+
+    private static class MissingLibraryException extends RuntimeException {
+        public MissingLibraryException(final String library) {
+            super(library);
+        }
     }
 }
