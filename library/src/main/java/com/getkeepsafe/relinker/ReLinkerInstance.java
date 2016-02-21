@@ -1,0 +1,252 @@
+package com.getkeepsafe.relinker;
+
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
+import android.text.TextUtils;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+@SuppressWarnings("deprecation")
+public class ReLinkerInstance {
+    private static final String LIB_DIR = "lib";
+    private static final int MAX_TRIES = 5;
+    private static final int COPY_BUFFER_SIZE = 4096;
+
+    private final ReLinker.Logger logger;
+
+    protected ReLinkerInstance(final ReLinker.Logger logger) {
+        this.logger = logger;
+    }
+
+    /**
+     * Utilizes the regular system call to attempt to load a native library. If a failure occurs,
+     * then the function extracts native .so library out of the app's APK and attempts to load it.
+     * <p>
+     *     <strong>Note: This is a synchronous operation</strong>
+     */
+    public void loadLibrary(final Context context, final String library) {
+        loadLibrary(context, library, null);
+    }
+
+    /**
+     * The same call as {@link #loadLibrary(Context, String)}, however if a
+     * {@link ReLinker.LoadListener} is provided, the function is executed asynchronously.
+     * @param listener {@link ReLinker.LoadListener} to listen for async execution, or {@code null}
+     */
+    public void loadLibrary(final Context context,
+                            final String library,
+                            final ReLinker.LoadListener listener) {
+        if (context == null) {
+            throw new IllegalArgumentException("Given context is null");
+        }
+
+        if (TextUtils.isEmpty(library)) {
+            throw new IllegalArgumentException("Given library is either null or empty");
+        }
+
+        log("Beginning load of %s...", library);
+        if (listener == null) {
+            loadLibraryInternal(context, library);
+        } else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        loadLibraryInternal(context, library);
+                        listener.success();
+                    } catch (UnsatisfiedLinkError e) {
+                        listener.failure(e);
+                    }
+                }
+            }).start();
+        }
+    }
+
+    private void loadLibraryInternal(final Context context, final String library) {
+        try {
+            System.loadLibrary(library);
+            log("%s was loaded normally!", library);
+            return;
+        } catch (final UnsatisfiedLinkError ignored) {
+            // :-(
+        }
+
+        log("%s was not loaded normally, re-linking...", library);
+        final File workaroundFile = getWorkaroundLibFile(context, library);
+        if (!workaroundFile.exists()) {
+            unpackLibrary(context, library);
+        }
+
+        System.load(workaroundFile.getAbsolutePath());
+        log("%s was re-linked!", library);
+    }
+
+    /**
+     * @param context {@link Context} to describe the location of it's private directories
+     * @return A {@link File} locating the directory that can store extracted libraries
+     * for later use
+     */
+    private File getWorkaroundLibDir(final Context context) {
+        return context.getDir(LIB_DIR, Context.MODE_PRIVATE);
+    }
+
+    /**
+     * @param context {@link Context} to retrieve the workaround directory from
+     * @param library The name of the library to load
+     * @return A {@link File} locating the workaround library file to load
+     */
+    private File getWorkaroundLibFile(final Context context, final String library) {
+        final String libName = System.mapLibraryName(library);
+        return new File(getWorkaroundLibDir(context), libName);
+    }
+
+    /**
+     * Attempts to unpack the given library to the workaround directory. Implements retry logic for
+     * IO operations to ensure they succeed.
+     *
+     * @param context {@link Context} to describe the location of the installed APK file
+     * @param library The name of the library to load
+     */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void unpackLibrary(final Context context, final String library) {
+        ZipFile zipFile = null;
+        try {
+            final ApplicationInfo appInfo = context.getApplicationInfo();
+            int tries = 0;
+            while (tries++ < MAX_TRIES) {
+                try {
+                    zipFile = new ZipFile(new File(appInfo.sourceDir), ZipFile.OPEN_READ);
+                    break;
+                } catch (IOException ignored) {}
+            }
+
+            if (zipFile == null) {
+                return;
+            }
+
+            tries = 0;
+            while (tries++ < MAX_TRIES) {
+                String jniNameInApk = null;
+                ZipEntry libraryEntry = null;
+
+                if (Build.VERSION.SDK_INT >= 21 && Build.SUPPORTED_ABIS.length > 0) {
+                    for (final String ABI : Build.SUPPORTED_ABIS) {
+                        jniNameInApk = "lib/" + ABI + "/" + System.mapLibraryName(library);
+                        libraryEntry = zipFile.getEntry(jniNameInApk);
+
+                        if (libraryEntry != null) {
+                            break;
+                        }
+                    }
+                } else {
+                    //noinspection deprecation
+                    jniNameInApk = "lib/" + Build.CPU_ABI + "/" + System.mapLibraryName(library);
+                    libraryEntry = zipFile.getEntry(jniNameInApk);
+                }
+
+                if (jniNameInApk != null) log("Looking for %s in APK...", jniNameInApk);
+
+                if (libraryEntry == null) {
+                    // Does not exist in the APK
+                    if (jniNameInApk != null) {
+                        throw new MissingLibraryException(jniNameInApk);
+                    } else {
+                        throw new MissingLibraryException(library);
+                    }
+                }
+
+                log("Found %s! Extracting...", jniNameInApk);
+                final File outputFile = getWorkaroundLibFile(context, library);
+                outputFile.delete(); // Remove any old file that might exist
+
+                try {
+                    if (!outputFile.createNewFile()) {
+                        continue;
+                    }
+                } catch (IOException ignored) {
+                    // Try again
+                    continue;
+                }
+
+                InputStream inputStream = null;
+                FileOutputStream fileOut = null;
+                try {
+                    inputStream = zipFile.getInputStream(libraryEntry);
+                    fileOut = new FileOutputStream(outputFile);
+                    copy(inputStream, fileOut);
+                } catch (FileNotFoundException e) {
+                    // Try again
+                    continue;
+                } catch (IOException e) {
+                    // Try again
+                    continue;
+                } finally {
+                    closeSilently(inputStream);
+                    closeSilently(fileOut);
+                }
+
+                // Change permission to rwxr-xr-x
+                outputFile.setReadable(true, false);
+                outputFile.setExecutable(true, false);
+                outputFile.setWritable(true);
+                break;
+            }
+        } finally {
+            try {
+                if (zipFile != null) {
+                    zipFile.close();
+                }
+            } catch (IOException ignored) {}
+        }
+    }
+
+    /**
+     * Copies all data from an {@link InputStream} to an {@link OutputStream}.
+     *
+     * @param in The stream to read from.
+     * @param out The stream to write to.
+     * @throws IOException when a stream operation fails.
+     */
+    private void copy(InputStream in, OutputStream out) throws IOException {
+        byte[] buf = new byte[COPY_BUFFER_SIZE];
+        while (true) {
+            int read = in.read(buf);
+            if (read == -1) {
+                break;
+            }
+            out.write(buf, 0, read);
+        }
+    }
+
+    /**
+     * Closes a {@link Closeable} silently (without throwing or handling any exceptions)
+     * @param closeable {@link Closeable} to close
+     */
+    private void closeSilently(final Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (IOException ignored) {}
+    }
+
+    private void log(final String format, final Object... args) {
+        log(String.format(Locale.US, format, args));
+    }
+
+    private void log(final String message) {
+        if (logger != null) {
+            logger.log(message);
+        }
+    }
+}
