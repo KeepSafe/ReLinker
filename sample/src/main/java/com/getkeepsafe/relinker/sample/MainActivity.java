@@ -3,6 +3,7 @@ package com.getkeepsafe.relinker.sample;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,11 +12,17 @@ import com.getkeepsafe.relinker.ReLinker;
 
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
 
 public class MainActivity extends Activity {
     private File mLibDir;
     private File mWorkaroundDir;
+
+    private ReLinker.Logger logcatLogger = new ReLinker.Logger() {
+        @Override
+        public void log(String message) {
+            Log.d("ReLinker", message);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +70,8 @@ public class MainActivity extends Activity {
             ((TextView) findViewById(R.id.text)).setText(Native.helloJni());
             updateTree();
         } catch (UnsatisfiedLinkError e) {
-            ReLinker.loadLibrary(MainActivity.this, "hellojni", new ReLinker.LoadListener() {
+            ReLinker.log(logcatLogger)
+                    .loadLibrary(MainActivity.this, "hellojni", new ReLinker.LoadListener() {
                 @Override
                 public void success() {
                     runOnUiThread(new Runnable() {
