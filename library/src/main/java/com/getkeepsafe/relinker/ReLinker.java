@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 KeepSafe Software, Inc.
+ * Copyright 2016 KeepSafe Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,11 @@ public class ReLinker {
     private static final int MAX_TRIES = 5;
     private static final int COPY_BUFFER_SIZE = 4096;
 
+    public interface LoadListener {
+        void success();
+        void failure(Throwable t);
+    }
+
     private ReLinker() {
         // No instances
     }
@@ -52,6 +57,17 @@ public class ReLinker {
      *     <strong>Note: This is a synchronous operation</strong>
      */
     public static void loadLibrary(final Context context, final String library) {
+        loadLibrary(context, library, null);
+    }
+
+    /**
+     * The same call as {@link #loadLibrary(Context, String)}, however if a {@link LoadListener}
+     * is provided, the function is executed asynchronously.
+     * @param listener {@link LoadListener} to listen for async execution, or {@code null}
+     */
+    public static void loadLibrary(final Context context,
+                                   final String library,
+                                   final LoadListener listener) {
         if (context == null) {
             throw new IllegalArgumentException("Given context is null");
         }
@@ -60,6 +76,24 @@ public class ReLinker {
             throw new IllegalArgumentException("Given library is either null or empty");
         }
 
+        if (listener == null) {
+            loadLibraryInternal(context, library);
+        } else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        loadLibraryInternal(context, library);
+                        listener.success();
+                    } catch (UnsatisfiedLinkError e) {
+                        listener.failure(e);
+                    }
+                }
+            }).start();
+        }
+    }
+
+    private static void loadLibraryInternal(final Context context, final String library) {
         try {
             System.loadLibrary(library);
             return;
