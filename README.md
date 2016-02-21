@@ -59,6 +59,37 @@ With a call to `ReLinker.loadLibrary` like this:
 ReLinker.loadLibrary(context, "mylibrary");
 ```
 
+## Advanced Usage
+
+### Asynchronous loading (Pending v1.2 release)
+
+ReLinker can load libraries asynchronously. Simply pass a `LoadListener` instance to the `loadLibrary` call:
+```java
+ReLinker.loadLibrary(context, "mylibrary", new ReLinker.LoadListener() {
+    @Override
+    public void success() { /* Yay */ }
+
+    @Override
+    public void failure(Throwable t) { /* Boo */ }
+});
+```
+
+### Logging (Pending v1.2 release)
+
+To help facilitate debugging, ReLinker can log messages to a `Logger` instance you provide:
+```java
+ReLinker.log(myLogger).loadLibrary(context, "mylibrary");
+```
+
+Which will log the following messages during a normal / successful execution:
+```
+D/ReLinker: Beginning load of mylibrary...
+D/ReLinker: mylibrary was not loaded normally, re-linking...
+D/ReLinker: Looking for lib/x86/libmylibrary.so in APK...
+D/ReLinker: Found lib/x86/libmylibrary.so! Extracting...
+D/ReLinker: mylibrary was re-linked!
+```
+
 ## Sample application
 
 See the sample application under `sample/` for a quick demo.
