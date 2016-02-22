@@ -24,6 +24,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,10 +38,25 @@ public class ReLinkerInstance {
     private static final int MAX_TRIES = 5;
     private static final int COPY_BUFFER_SIZE = 4096;
 
-    private final ReLinker.Logger logger;
+    private ReLinker.Logger logger;
+    private boolean force;
 
-    protected ReLinkerInstance(final ReLinker.Logger logger) {
+    protected ReLinkerInstance() {}
+
+    /**
+     * Logs debugging related information to the {@link ReLinker.Logger} instance give
+     */
+    public ReLinkerInstance log(final ReLinker.Logger logger) {
         this.logger = logger;
+        return this;
+    }
+
+    /**
+     * Forces any previously extracted / re-linked libraries to be cleaned up before loading
+     */
+    public ReLinkerInstance force() {
+        this.force = true;
+        return this;
     }
 
     /**
@@ -50,16 +66,39 @@ public class ReLinkerInstance {
      *     <strong>Note: This is a synchronous operation</strong>
      */
     public void loadLibrary(final Context context, final String library) {
-        loadLibrary(context, library, null);
+        loadLibrary(context, library, null, null);
+    }
+
+    /**
+     * The same call as {@link #loadLibrary(Context, String)}, however if a {@code version} is
+     * provided, then that specific version of the given library is loaded.
+     */
+    public void loadLibrary(final Context context, final String library, final String version) {
+        loadLibrary(context, library, version, null);
     }
 
     /**
      * The same call as {@link #loadLibrary(Context, String)}, however if a
      * {@link ReLinker.LoadListener} is provided, the function is executed asynchronously.
+     */
+    public void loadLibrary(final Context context,
+                            final String library,
+                            final ReLinker.LoadListener listener) {
+        loadLibrary(context, library, null, listener);
+    }
+
+    /**
+     * Attemps to load the given library normally. If that fails, it loads the library utilizing
+     * a workaround.
+     *
+     * @param context The {@link Context} to get a workaround directory from
+     * @param library The library you wish to load
+     * @param version The version of the library you wish to load, or {@code null}
      * @param listener {@link ReLinker.LoadListener} to listen for async execution, or {@code null}
      */
     public void loadLibrary(final Context context,
                             final String library,
+                            final String version,
                             final ReLinker.LoadListener listener) {
         if (context == null) {
             throw new IllegalArgumentException("Given context is null");
@@ -71,13 +110,13 @@ public class ReLinkerInstance {
 
         log("Beginning load of %s...", library);
         if (listener == null) {
-            loadLibraryInternal(context, library);
+            loadLibraryInternal(context, library, version);
         } else {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        loadLibraryInternal(context, library);
+                        loadLibraryInternal(context, library, version);
                         listener.success();
                     } catch (UnsatisfiedLinkError e) {
                         listener.failure(e);
@@ -87,23 +126,30 @@ public class ReLinkerInstance {
         }
     }
 
-    private void loadLibraryInternal(final Context context, final String library) {
+    private void loadLibraryInternal(final Context context,
+                                     final String library,
+                                     final String version) {
         try {
             System.loadLibrary(library);
-            log("%s was loaded normally!", library);
+            log("%s (%s) was loaded normally!", library, version);
             return;
         } catch (final UnsatisfiedLinkError ignored) {
             // :-(
         }
 
-        log("%s was not loaded normally, re-linking...", library);
-        final File workaroundFile = getWorkaroundLibFile(context, library);
-        if (!workaroundFile.exists()) {
-            unpackLibrary(context, library);
+        log("%s (%s) was not loaded normally, re-linking...", library, version);
+        final File workaroundFile = getWorkaroundLibFile(context, library, version);
+        if (!workaroundFile.exists() || force) {
+            if (force) {
+                log("Forcing a re-link of %s (%s)...", library, version);
+            }
+
+            cleanupOldLibFiles(context, library, version);
+            unpackLibrary(context, library, workaroundFile);
         }
 
         System.load(workaroundFile.getAbsolutePath());
-        log("%s was re-linked!", library);
+        log("%s (%s) was re-linked!", library, version);
     }
 
     /**
@@ -118,11 +164,50 @@ public class ReLinkerInstance {
     /**
      * @param context {@link Context} to retrieve the workaround directory from
      * @param library The name of the library to load
+     * @param version The version of the library to load or {@code null}
      * @return A {@link File} locating the workaround library file to load
      */
-    private File getWorkaroundLibFile(final Context context, final String library) {
+    private File getWorkaroundLibFile(final Context context,
+                                      final String library,
+                                      final String version) {
         final String libName = System.mapLibraryName(library);
-        return new File(getWorkaroundLibDir(context), libName);
+
+        if (TextUtils.isEmpty(version)) {
+            return new File(getWorkaroundLibDir(context), libName);
+        }
+
+        return new File(getWorkaroundLibDir(context), libName + "." + version);
+    }
+
+    /**
+     * Cleans up any <em>other</em> versions of the {@code library}. If {@code force} is used, all
+     * versions of the {@code library} are deleted
+     *
+     * @param context {@link Context} to retrieve the workaround directory from
+     * @param library The name of the library to load
+     * @param currentVersion The version of the library to keep, all other versions will be deleted.
+     *                       This parameter is ignored if {@code force} is used.
+     */
+    private void cleanupOldLibFiles(final Context context,
+                                    final String library,
+                                    final String currentVersion) {
+        final File workaroundDir = getWorkaroundLibDir(context);
+        final File workaroundFile = getWorkaroundLibFile(context, library, currentVersion);
+        final String mappedLibraryName = System.mapLibraryName(library);
+        final File[] existingFiles = workaroundDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                return filename.startsWith(mappedLibraryName);
+            }
+        });
+
+        if (existingFiles == null) return;
+
+        for (final File file : existingFiles) {
+            if (force || !file.getAbsolutePath().equals(workaroundFile.getAbsolutePath())) {
+                file.delete();
+            }
+        }
     }
 
     /**
@@ -133,7 +218,9 @@ public class ReLinkerInstance {
      * @param library The name of the library to load
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void unpackLibrary(final Context context, final String library) {
+    private void unpackLibrary(final Context context,
+                               final String library,
+                               final File destination) {
         ZipFile zipFile = null;
         try {
             final ApplicationInfo appInfo = context.getApplicationInfo();
@@ -181,11 +268,8 @@ public class ReLinkerInstance {
                 }
 
                 log("Found %s! Extracting...", jniNameInApk);
-                final File outputFile = getWorkaroundLibFile(context, library);
-                outputFile.delete(); // Remove any old file that might exist
-
                 try {
-                    if (!outputFile.createNewFile()) {
+                    if (!destination.createNewFile()) {
                         continue;
                     }
                 } catch (IOException ignored) {
@@ -197,7 +281,7 @@ public class ReLinkerInstance {
                 FileOutputStream fileOut = null;
                 try {
                     inputStream = zipFile.getInputStream(libraryEntry);
-                    fileOut = new FileOutputStream(outputFile);
+                    fileOut = new FileOutputStream(destination);
                     copy(inputStream, fileOut);
                 } catch (FileNotFoundException e) {
                     // Try again
@@ -211,9 +295,9 @@ public class ReLinkerInstance {
                 }
 
                 // Change permission to rwxr-xr-x
-                outputFile.setReadable(true, false);
-                outputFile.setExecutable(true, false);
-                outputFile.setWritable(true);
+                destination.setReadable(true, false);
+                destination.setExecutable(true, false);
+                destination.setWritable(true);
                 break;
             }
         } finally {
