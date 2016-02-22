@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +17,8 @@ import java.io.File;
 public class MainActivity extends Activity {
     private File mLibDir;
     private File mWorkaroundDir;
+
+    private EditText version;
 
     private ReLinker.Logger logcatLogger = new ReLinker.Logger() {
         @Override
@@ -63,6 +66,8 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+        version = (EditText) findViewById(R.id.version);
     }
 
     private void call() {
@@ -71,29 +76,31 @@ public class MainActivity extends Activity {
             updateTree();
         } catch (UnsatisfiedLinkError e) {
             ReLinker.log(logcatLogger)
-                    .loadLibrary(MainActivity.this, "hellojni", new ReLinker.LoadListener() {
-                @Override
-                public void success() {
-                    runOnUiThread(new Runnable() {
+                    .force()
+                    .loadLibrary(MainActivity.this, "hellojni", version.getText().toString(),
+                            new ReLinker.LoadListener() {
                         @Override
-                        public void run() {
-                            ((TextView) findViewById(R.id.text)).setText(Native.helloJni());
-                            updateTree();
+                        public void success() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ((TextView) findViewById(R.id.text)).setText(Native.helloJni());
+                                    updateTree();
+                                }
+                            });
                         }
-                    });
-                }
 
-                @Override
-                public void failure(Throwable t) {
-                    runOnUiThread(new Runnable() {
                         @Override
-                        public void run() {
-                            ((TextView) findViewById(R.id.text)).setText(
-                                    "Couldn't load! Report this issue to the github please!");
+                        public void failure(Throwable t) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ((TextView) findViewById(R.id.text)).setText(
+                                            "Couldn't load! Report this issue to the github please!");
+                                }
+                            });
                         }
                     });
-                }
-            });
         }
     }
 

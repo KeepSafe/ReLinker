@@ -16,17 +16,42 @@
         android:textSize="30sp"
         tools:text="test"/>
 
-    <Button
-        android:id="@+id/call"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Call native function"/>
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/delete"
-        android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Call native function"/>
+
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete and Kill"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete and Kill"/>
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Version"/>
+
+        <EditText
+            android:id="@+id/version"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="1.0"/>
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
