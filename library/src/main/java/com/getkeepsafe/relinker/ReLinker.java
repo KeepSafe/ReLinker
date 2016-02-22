@@ -39,11 +39,15 @@ public class ReLinker {
     public static void loadLibrary(final Context context,
                                    final String library,
                                    final LoadListener listener) {
-        new ReLinkerInstance(null).loadLibrary(context, library, listener);
+        new ReLinkerInstance().loadLibrary(context, library, listener);
+    }
+    
+    public static ReLinkerInstance force() {
+        return new ReLinkerInstance().force();
     }
 
     public static ReLinkerInstance log(final Logger logger) {
-        return new ReLinkerInstance(logger);
+        return new ReLinkerInstance().log(logger);
     }
 
     private ReLinker() {}
