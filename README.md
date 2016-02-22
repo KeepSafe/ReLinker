@@ -90,6 +90,17 @@ D/ReLinker: Found lib/x86/libmylibrary.so! Extracting...
 D/ReLinker: mylibrary was re-linked!
 ```
 
+### Versioning (Pending v1.2 release)
+
+In the event that your library's code is changed, it is a good idea to specify a specific version. Doing so will allow ReLinker to update the workaround library file successfully. In the case that the system handles the library loading appropriately, the version specified is not used as all library files are extracted and replaced on update or install. 
+
+To specify a version for your library, simply provide it as an additional parameter for `loadLibrary` like:
+```java
+ReLinker..loadLibrary(context, "mylibrary", "1.0");
+```
+
+This will cause ReLinker to look for, and load `libmylibrary.so.1.0`. Subsequent version updates will automatically clean up all other library versions.
+
 ## Sample application
 
 See the sample application under `sample/` for a quick demo.
