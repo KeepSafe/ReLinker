@@ -96,7 +96,7 @@ In the event that your library's code is changed, it is a good idea to specify a
 
 To specify a version for your library, simply provide it as an additional parameter for `loadLibrary` like:
 ```java
-ReLinker..loadLibrary(context, "mylibrary", "1.0");
+ReLinker.loadLibrary(context, "mylibrary", "1.0");
 ```
 
 This will cause ReLinker to look for, and load `libmylibrary.so.1.0`. Subsequent version updates will automatically clean up all other library versions.
