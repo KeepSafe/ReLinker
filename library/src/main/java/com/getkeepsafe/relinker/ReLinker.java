@@ -17,6 +17,8 @@ package com.getkeepsafe.relinker;
 
 import android.content.Context;
 
+import java.io.File;
+
 /**
  * ReLinker is a small library to help alleviate {@link UnsatisfiedLinkError} exceptions thrown due
  * to Android's inability to properly install / load native libraries for Android versions before
@@ -29,7 +31,19 @@ public class ReLinker {
     }
 
     public interface Logger {
-        void log(final String message);
+        void log(String message);
+    }
+
+    public interface LibraryLoader {
+        void loadLibrary(String libraryName);
+        void loadPath(String libraryPath);
+        String mapLibraryName(String libraryName);
+        String[] supportedAbis();
+    }
+
+    public interface LibraryInstaller {
+        void installLibrary(Context context, String[] abis, String mappedLibraryName,
+                            File destination, ReLinkerInstance logger);
     }
 
     public static void loadLibrary(final Context context, final String library) {
@@ -41,7 +55,7 @@ public class ReLinker {
                                    final LoadListener listener) {
         new ReLinkerInstance().loadLibrary(context, library, listener);
     }
-    
+
     public static ReLinkerInstance force() {
         return new ReLinkerInstance().force();
     }
