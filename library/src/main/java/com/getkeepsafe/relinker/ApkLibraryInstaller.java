@@ -103,7 +103,12 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
                 try {
                     inputStream = zipFile.getInputStream(libraryEntry);
                     fileOut = new FileOutputStream(destination);
-                    copy(inputStream, fileOut);
+                    final long written = copy(inputStream, fileOut);
+                    fileOut.getFD().sync();
+                    if (written != destination.length()) {
+                        // File was not written entirely... Try again
+                        continue;
+                    }
                 } catch (FileNotFoundException e) {
                     // Try again
                     continue;
@@ -138,8 +143,10 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
      * @param in The stream to read from.
      * @param out The stream to write to.
      * @throws IOException when a stream operation fails.
+     * @return The actual number of bytes copied
      */
-    private void copy(InputStream in, OutputStream out) throws IOException {
+    private long copy(InputStream in, OutputStream out) throws IOException {
+        long copied = 0;
         byte[] buf = new byte[COPY_BUFFER_SIZE];
         while (true) {
             int read = in.read(buf);
@@ -147,9 +154,10 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
                 break;
             }
             out.write(buf, 0, read);
+            copied += read;
         }
-
         out.flush();
+        return copied;
     }
 
     /**
