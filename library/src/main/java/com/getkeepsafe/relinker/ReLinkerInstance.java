@@ -18,17 +18,28 @@ package com.getkeepsafe.relinker;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.getkeepsafe.relinker.elf.ElfParser;
+
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ReLinkerInstance {
     private static final String LIB_DIR = "lib";
 
+    protected final Set<String> loadedLibraries = new HashSet<>();
     protected final ReLinker.LibraryLoader libraryLoader;
     protected final ReLinker.LibraryInstaller libraryInstaller;
 
     protected boolean force;
+    protected boolean recursive;
     protected ReLinker.Logger logger;
 
     protected ReLinkerInstance() {
@@ -62,6 +73,15 @@ public class ReLinkerInstance {
      */
     public ReLinkerInstance force() {
         this.force = true;
+        return this;
+    }
+
+    /**
+     * Enables recursive library loading to resolve and load shared object -> shared object
+     * defined dependencies
+     */
+    public ReLinkerInstance recursively() {
+        this.recursive = true;
         return this;
     }
 
@@ -135,8 +155,14 @@ public class ReLinkerInstance {
     private void loadLibraryInternal(final Context context,
                                      final String library,
                                      final String version) {
+        if (loadedLibraries.contains(library) && !force) {
+            log("%s already loaded previously!", library);
+            return;
+        }
+
         try {
             libraryLoader.loadLibrary(library);
+            loadedLibraries.add(library);
             log("%s (%s) was loaded normally!", library, version);
             return;
         } catch (final UnsatisfiedLinkError ignored) {
@@ -155,7 +181,22 @@ public class ReLinkerInstance {
                     libraryLoader.mapLibraryName(library), workaroundFile, this);
         }
 
+        try {
+            if (recursive) {
+                final ElfParser parser = new ElfParser(workaroundFile);
+                final List<String> dependencies = parser.parseNeededDependencies();
+                for (final String dependency : dependencies) {
+                    loadLibrary(context, libraryLoader.unmapLibraryName(dependency));
+                }
+            }
+        } catch (IOException ignored) {
+            // This a redundant step of the process, if our library resolving fails, it will likely
+            // be picked up by the system's resolver, if not, an exception will be thrown by the
+            // next statement, so its better to try twice.
+        }
+
         libraryLoader.loadPath(workaroundFile.getAbsolutePath());
+        loadedLibraries.add(library);
         log("%s (%s) was re-linked!", library, version);
     }
 

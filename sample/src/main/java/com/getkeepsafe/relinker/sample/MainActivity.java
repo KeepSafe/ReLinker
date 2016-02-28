@@ -10,9 +10,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.getkeepsafe.relinker.ReLinker;
+import com.getkeepsafe.relinker.elf.Elf;
+import com.getkeepsafe.relinker.elf.ElfParser;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
     private File mLibDir;
@@ -75,9 +80,11 @@ public class MainActivity extends Activity {
             ((TextView) findViewById(R.id.text)).setText(Native.helloJni());
             updateTree();
         } catch (UnsatisfiedLinkError e) {
+            final String libVersion = version.getText().toString();
             ReLinker.log(logcatLogger)
                     .force()
-                    .loadLibrary(MainActivity.this, "hellojni", version.getText().toString(),
+                    .recursively()
+                    .loadLibrary(MainActivity.this, "hellojni", libVersion,
                             new ReLinker.LoadListener() {
                         @Override
                         public void success() {
@@ -88,6 +95,38 @@ public class MainActivity extends Activity {
                                     updateTree();
                                 }
                             });
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        final String file;
+                                        if (libVersion.length() > 0) {
+                                            file = "libhellojni.so." + libVersion;
+                                        } else {
+                                            file = "libhellojni.so";
+                                        }
+                                        final File filesDir = getDir("lib", MODE_PRIVATE);
+                                        final File lib = new File(filesDir, file);
+                                        if (!lib.exists()) return;
+
+                                        final ElfParser parser = new ElfParser(lib);
+                                        final List<String> deps = parser.parseNeededDependencies();
+                                        final StringBuilder builder = new StringBuilder("Library dependencies:\n");
+                                        for (final String str : deps) {
+                                            builder.append(str).append(", ");
+                                        }
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ((TextView) findViewById(R.id.deps)).setText(builder.toString());
+                                            }
+                                        });
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }).start();
                         }
 
                         @Override

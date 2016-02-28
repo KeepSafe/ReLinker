@@ -31,7 +31,18 @@ final class SystemLibraryLoader implements ReLinker.LibraryLoader {
 
     @Override
     public String mapLibraryName(final String libraryName) {
+        if (libraryName.startsWith("lib") && libraryName.endsWith(".so")) {
+            // Already mapped
+            return libraryName;
+        }
+
         return System.mapLibraryName(libraryName);
+    }
+
+    @Override
+    public String unmapLibraryName(String mappedLibraryName) {
+        // Assuming libname.so
+        return mappedLibraryName.substring(3, mappedLibraryName.length() - 3);
     }
 
     @Override
