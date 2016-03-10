@@ -1,4 +1,7 @@
-# ReLinker 
+<h1 align="center">
+	<img src="web/logo.png" width="256" height="256" alt="ReLinker"><br/>
+	ReLinker
+</h1>
 
 [![Build Status](https://travis-ci.org/KeepSafe/ReLinker.svg?branch=master)](https://travis-ci.org/KeepSafe/ReLinker) [![Release](https://img.shields.io/github/tag/KeepSafe/ReLinker.svg?label=maven)](https://jitpack.io/#KeepSafe/ReLinker)
 
@@ -104,6 +107,10 @@ This will cause ReLinker to look for, and load `libmylibrary.so.1.0`. Subsequent
 ## Sample application
 
 See the sample application under `sample/` for a quick demo.
+
+## Acknowledgements
+
+Special thanks to [Jeff Young](https://github.com/tenoversix) for the awesome logo!
 
 ## License
 
