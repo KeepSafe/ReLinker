@@ -38,6 +38,7 @@ public class ReLinker {
         void loadLibrary(String libraryName);
         void loadPath(String libraryPath);
         String mapLibraryName(String libraryName);
+        String unmapLibraryName(String mappedLibraryName);
         String[] supportedAbis();
     }
 
@@ -62,6 +63,10 @@ public class ReLinker {
 
     public static ReLinkerInstance log(final Logger logger) {
         return new ReLinkerInstance().log(logger);
+    }
+
+    public static ReLinkerInstance recursively() {
+        return new ReLinkerInstance().recursively();
     }
 
     private ReLinker() {}
