@@ -77,6 +77,17 @@ ReLinker.loadLibrary(context, "mylibrary", new ReLinker.LoadListener() {
 });
 ```
 
+### Recursive loading (Pending v1.2 release)
+
+On older versions of Android, the system's library loader may fail to resolve intra-library dependencies. In this instance, ReLinker can resolve those dependencies for you. This will recursively load all libraries defined as "needed" by each library. 
+
+For example, if you have a library `libchild` that relies on `libparent`, then `libchild` will have an entry in its shared object file defining that. ReLinker will parse the shared object file and determine that `libchild` needs `libparent`. ReLinker will then proceed to load `libparent` (and any dependencies it may have) and then `libchild`.  
+
+To allow ReLinker to recursively load and resolve intra-library dependencies simply modify your `loadLibrary` call with the `recursively` modifier, like so:
+```java
+ReLinker.recursively().loadLibrary(context, "mylibrary");
+```
+
 ### Logging (Pending v1.2 release)
 
 To help facilitate debugging, ReLinker can log messages to a `Logger` instance you provide:
@@ -97,7 +108,7 @@ D/ReLinker: mylibrary was re-linked!
 
 In the event that your library's code is changed, it is a good idea to specify a specific version. Doing so will allow ReLinker to update the workaround library file successfully. In the case that the system handles the library loading appropriately, the version specified is not used as all library files are extracted and replaced on update or install. 
 
-To specify a version for your library, simply provide it as an additional parameter for `loadLibrary` like:
+To specify a version for your library simply provide it as an additional parameter for `loadLibrary` like:
 ```java
 ReLinker.loadLibrary(context, "mylibrary", "1.0");
 ```
