@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':relinker')
     testCompile 'junit:junit:4.10'
 }
 

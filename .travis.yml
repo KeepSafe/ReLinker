@@ -12,4 +12,4 @@ android:
   - android-23
 
 script: 
-  - ./gradlew library:testReleaseUnitTest
+  - ./gradlew relinker:testReleaseUnitTest
