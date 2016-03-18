@@ -17,6 +17,7 @@ package com.getkeepsafe.relinker;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.getkeepsafe.relinker.elf.ElfParser;
 
@@ -165,8 +166,9 @@ public class ReLinkerInstance {
             loadedLibraries.add(library);
             log("%s (%s) was loaded normally!", library, version);
             return;
-        } catch (final UnsatisfiedLinkError ignored) {
+        } catch (final UnsatisfiedLinkError e) {
             // :-(
+            log("Loading the library normally failed: %s", Log.getStackTraceString(e));
         }
 
         log("%s (%s) was not loaded normally, re-linking...", library, version);
