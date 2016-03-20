@@ -3,7 +3,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 group = 'com.getkeepsafe.relinker'
-version = '1.2RC'
+version = '1.2'
 
 android {
     compileSdkVersion 23
@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        versionCode 3
+        versionCode 4
         versionName project.version
     }
     buildTypes {
