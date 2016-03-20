@@ -1,5 +1,5 @@
 <h1 align="center">
-	<img src="web/logo.png" width="256" height="256" alt="ReLinker"><br/>
+	<img src="https://raw.githubusercontent.com/KeepSafe/ReLinker/1.2/web/logo.png" width="256" height="256" alt="ReLinker"><br/>
 	ReLinker
 </h1>
 
@@ -10,6 +10,8 @@
 A robust native library loader for Android. More information can be found in our [blog post](https://medium.com/keepsafe-engineering/the-perils-of-loading-native-libraries-on-android-befa49dce2db)
 
  **Min SDK:** 9
+ 
+ [JavaDoc](https://jitpack.io/com/github/KeepSafe/Relinker/1.2/javadoc/)
 
 ## Overview
 
@@ -43,7 +45,7 @@ ReLinker is distributed using [jcenter](https://bintray.com/keepsafesoftware/And
    }
    
    dependencies {
-         compile 'com.getkeepsafe.relinker:relinker:1.2RC'
+         compile 'com.getkeepsafe.relinker:relinker:1.2'
    }
 ```
 
@@ -65,7 +67,7 @@ ReLinker.loadLibrary(context, "mylibrary");
 
 ## Advanced Usage
 
-### Asynchronous loading (Pending v1.2 release)
+### Asynchronous loading
 
 ReLinker can load libraries asynchronously. Simply pass a `LoadListener` instance to the `loadLibrary` call:
 ```java
@@ -78,7 +80,7 @@ ReLinker.loadLibrary(context, "mylibrary", new ReLinker.LoadListener() {
 });
 ```
 
-### Recursive loading (Pending v1.2 release)
+### Recursive loading
 
 On older versions of Android, the system's library loader may fail to resolve intra-library dependencies. In this instance, ReLinker can resolve those dependencies for you. This will recursively load all libraries defined as "needed" by each library. 
 
@@ -89,7 +91,7 @@ To allow ReLinker to recursively load and resolve intra-library dependencies sim
 ReLinker.recursively().loadLibrary(context, "mylibrary");
 ```
 
-### Logging (Pending v1.2 release)
+### Logging
 
 To help facilitate debugging, ReLinker can log messages to a `Logger` instance you provide:
 ```java
@@ -105,7 +107,7 @@ D/ReLinker: Found lib/x86/libmylibrary.so! Extracting...
 D/ReLinker: mylibrary was re-linked!
 ```
 
-### Versioning (Pending v1.2 release)
+### Versioning
 
 In the event that your library's code is changed, it is a good idea to specify a specific version. Doing so will allow ReLinker to update the workaround library file successfully. In the case that the system handles the library loading appropriately, the version specified is not used as all library files are extracted and replaced on update or install. 
 
