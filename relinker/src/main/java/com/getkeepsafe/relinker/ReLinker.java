@@ -48,13 +48,26 @@ public class ReLinker {
     }
 
     public static void loadLibrary(final Context context, final String library) {
-        loadLibrary(context, library, null);
+        loadLibrary(context, library, null, null);
+    }
+
+    public static void loadLibrary(final Context context,
+                                   final String library,
+                                   final String version) {
+        loadLibrary(context, library, version, null);
     }
 
     public static void loadLibrary(final Context context,
                                    final String library,
                                    final LoadListener listener) {
-        new ReLinkerInstance().loadLibrary(context, library, listener);
+        loadLibrary(context, library, null, listener);
+    }
+
+    public static void loadLibrary(final Context context,
+                            final String library,
+                            final String version,
+                            final ReLinker.LoadListener listener) {
+        new ReLinkerInstance().loadLibrary(context, library, version, listener);
     }
 
     public static ReLinkerInstance force() {
