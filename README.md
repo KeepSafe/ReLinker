@@ -11,7 +11,7 @@ A robust native library loader for Android. More information can be found in our
 
  **Min SDK:** 9
  
- [JavaDoc](https://jitpack.io/com/github/KeepSafe/Relinker/1.2/javadoc/)
+ [JavaDoc](https://jitpack.io/com/github/KeepSafe/Relinker/1.2.1/javadoc/)
 
 ## Overview
 
@@ -45,7 +45,7 @@ ReLinker is distributed using [jcenter](https://bintray.com/keepsafesoftware/And
    }
    
    dependencies {
-         compile 'com.getkeepsafe.relinker:relinker:1.2'
+         compile 'com.getkeepsafe.relinker:relinker:1.2.1'
    }
 ```
 
