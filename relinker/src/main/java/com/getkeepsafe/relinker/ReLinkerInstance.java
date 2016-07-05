@@ -16,7 +16,6 @@
 package com.getkeepsafe.relinker;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.getkeepsafe.relinker.elf.ElfParser;
