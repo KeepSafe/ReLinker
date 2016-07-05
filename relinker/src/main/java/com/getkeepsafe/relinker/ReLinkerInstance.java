@@ -23,13 +23,10 @@ import com.getkeepsafe.relinker.elf.ElfParser;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ReLinkerInstance {
     private static final String LIB_DIR = "lib";
