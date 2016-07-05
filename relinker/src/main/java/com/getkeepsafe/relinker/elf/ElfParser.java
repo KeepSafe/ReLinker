@@ -64,7 +64,7 @@ public class ElfParser implements Closeable, Elf {
 
     public List<String> parseNeededDependencies() throws IOException {
         channel.position(0);
-        final List<String> dependencies = new ArrayList<>();
+        final List<String> dependencies = new ArrayList<String>();
         final Elf.Header header = parseHeader();
         final ByteBuffer buffer = ByteBuffer.allocate(8);
         buffer.order(header.bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
@@ -99,7 +99,7 @@ public class ElfParser implements Closeable, Elf {
         }
 
         int i = 0;
-        final List<Long> neededOffsets = new ArrayList<>();
+        final List<Long> neededOffsets = new ArrayList<Long>();
         long vStringTableOff = 0;
         Elf.DynamicStructure dynStructure;
         do {

@@ -31,7 +31,7 @@ import java.util.Set;
 public class ReLinkerInstance {
     private static final String LIB_DIR = "lib";
 
-    protected final Set<String> loadedLibraries = new HashSet<>();
+    protected final Set<String> loadedLibraries = new HashSet<String>();
     protected final ReLinker.LibraryLoader libraryLoader;
     protected final ReLinker.LibraryInstaller libraryInstaller;
 
