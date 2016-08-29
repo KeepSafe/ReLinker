@@ -5,7 +5,6 @@ package com.getkeepsafe.relinker;
  * avoid depending on android.text.TextUtils.
  */
 final class TextUtils {
-
     /**
      * Returns true if the string is null or 0-length.
      *
