@@ -143,6 +143,8 @@ public class ReLinkerInstance {
                         listener.success();
                     } catch (UnsatisfiedLinkError e) {
                         listener.failure(e);
+                    } catch (MissingLibraryException e) {
+                        listener.failure(e);
                     }
                 }
             }).start();
