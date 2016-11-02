@@ -79,7 +79,7 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
 
                 if (jniNameInApk != null) instance.log("Looking for %s in APK...", jniNameInApk);
 
-                //try load armeabi lib
+                //try to load armeabi lib
                 if(libraryEntry == null) {
                     jniNameInApk = "lib" + File.separatorChar + "armeabi" + File.separatorChar + mappedLibraryName;
                     libraryEntry = zipFile.getEntry(jniNameInApk);
