@@ -16,8 +16,8 @@ android:
   components:
   - platform-tools
   - tools
-  - build-tools-24.0.1
-  - android-24
+  - build-tools-25.0.2
+  - android-25
 
 script: 
   - jdk_switcher use oraclejdk8
