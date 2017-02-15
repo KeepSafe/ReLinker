@@ -21,13 +21,13 @@ The Android `PackageManager`'s native library loading is unreliable. Occasionall
 java.lang.UnsatisfiedLinkError: Couldn't load stlport_shared from loader dalvik.system.PathClassLoader: findLibrary returned null
 at java.lang.Runtime.loadLibrary(Runtime.java:365)
 at java.lang.System.loadLibrary(System.java:535)
-at com.kii.safe.Native.<clinit>(Native.java:16)
+at com.your.app.NativeClass.<clinit>(Native.java:16)
 ... 63 more
 
 Caused by: java.lang.UnsatisfiedLinkError: Library stlport_shared not found
 at java.lang.Runtime.loadLibrary(Runtime.java:461)
 at java.lang.System.loadLibrary(System.java:557)
-at com.kii.safe.Native.<clinit>(Native.java:16)
+at com.your.app.NativeClass.<clinit>(Native.java:16)
 ... 5 more
 ```
 

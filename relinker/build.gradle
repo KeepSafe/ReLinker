@@ -6,8 +6,8 @@ group = 'com.getkeepsafe.relinker'
 version = '1.2.2'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
@@ -15,14 +15,6 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        versionCode 6
-        versionName project.version
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
     }
     testOptions {
         unitTests.all {
