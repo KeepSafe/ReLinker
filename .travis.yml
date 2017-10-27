@@ -7,18 +7,15 @@ install: true
 jdk:
   - oraclejdk8
 
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
-
 android:
   components:
-  - platform-tools
-  - tools
-  - build-tools-25.0.2
-  - android-25
+    - tools
+    - platform-tools
 
-script: 
-  - jdk_switcher use oraclejdk8
-  - ./gradlew relinker:testReleaseUnitTest
+before_install:
+  - mkdir "$ANDROID_HOME/licenses" || true
+  - echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"
+
+cache:
+  directories:
+    - $HOME/.m2
