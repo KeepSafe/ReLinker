@@ -185,6 +185,7 @@ public class ReLinkerInstance {
             if (recursive) {
                 final ElfParser parser = new ElfParser(workaroundFile);
                 final List<String> dependencies = parser.parseNeededDependencies();
+                parser.close();
                 for (final String dependency : dependencies) {
                     loadLibrary(context, libraryLoader.unmapLibraryName(dependency));
                 }
