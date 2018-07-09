@@ -183,8 +183,14 @@ public class ReLinkerInstance {
 
         try {
             if (recursive) {
-                final ElfParser parser = new ElfParser(workaroundFile);
-                final List<String> dependencies = parser.parseNeededDependencies();
+                ElfParser parser = null;
+                final List<String> dependencies;
+                try {
+                    parser = new ElfParser(workaroundFile);
+                    dependencies = parser.parseNeededDependencies();
+                }finally {
+                    parser.close();
+                }
                 for (final String dependency : dependencies) {
                     loadLibrary(context, libraryLoader.unmapLibraryName(dependency));
                 }
