@@ -15,15 +15,18 @@
  */
 package com.getkeepsafe.relinker;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
+import android.text.TextUtils;
 
-@SuppressWarnings("deprecation")
-final class SystemLibraryLoader implements ReLinker.LibraryLoader {
+public class SystemLibraryLoader implements ReLinker.LibraryLoader {
+
     @Override
     public void loadLibrary(final String libraryName) {
         System.loadLibrary(libraryName);
     }
 
+    @SuppressLint("UnsafeDynamicallyLoadedCode")
     @Override
     public void loadPath(final String libraryPath) {
         System.load(libraryPath);

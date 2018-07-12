@@ -24,6 +24,7 @@ import java.io.File;
  * to Android's inability to properly install / load native libraries for Android versions before
  * API 21
  */
+@SuppressWarnings("WeakerAccess")
 public class ReLinker {
     public interface LoadListener {
         void success();
@@ -68,6 +69,14 @@ public class ReLinker {
                             final String version,
                             final ReLinker.LoadListener listener) {
         new ReLinkerInstance().loadLibrary(context, library, version, listener);
+    }
+
+    public static ReLinkerInstance with(final ReLinker.LibraryLoader libraryLoader) {
+        return new ReLinkerInstance(libraryLoader);
+    }
+
+    public static ReLinkerInstance with(final ReLinker.LibraryInstaller libraryInstaller) {
+        return new ReLinkerInstance(libraryInstaller);
     }
 
     public static ReLinkerInstance force() {

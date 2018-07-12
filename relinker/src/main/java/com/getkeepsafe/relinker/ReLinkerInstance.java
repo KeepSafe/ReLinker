@@ -16,6 +16,7 @@
 package com.getkeepsafe.relinker;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.getkeepsafe.relinker.elf.ElfParser;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ReLinkerInstance {
     private static final String LIB_DIR = "lib";
 
@@ -41,6 +43,14 @@ public class ReLinkerInstance {
 
     protected ReLinkerInstance() {
         this(new SystemLibraryLoader(), new ApkLibraryInstaller());
+    }
+
+    protected ReLinkerInstance(final ReLinker.LibraryLoader libraryLoader) {
+        this(libraryLoader, new ApkLibraryInstaller());
+    }
+
+    protected ReLinkerInstance(final ReLinker.LibraryInstaller libraryInstaller) {
+        this(new SystemLibraryLoader(), libraryInstaller);
     }
 
     protected ReLinkerInstance(final ReLinker.LibraryLoader libraryLoader,
@@ -188,9 +198,12 @@ public class ReLinkerInstance {
                 try {
                     parser = new ElfParser(workaroundFile);
                     dependencies = parser.parseNeededDependencies();
-                }finally {
-                    parser.close();
+                } finally {
+                    if (parser != null) {
+                        parser.close();
+                    }
                 }
+
                 for (final String dependency : dependencies) {
                     loadLibrary(context, libraryLoader.unmapLibraryName(dependency));
                 }
@@ -259,6 +272,7 @@ public class ReLinkerInstance {
 
         for (final File file : existingFiles) {
             if (force || !file.getAbsolutePath().equals(workaroundFile.getAbsolutePath())) {
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
             }
         }
