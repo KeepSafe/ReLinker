@@ -17,6 +17,7 @@ package com.getkeepsafe.relinker;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.text.TextUtils;
 
 import java.io.Closeable;
 import java.io.File;
@@ -68,6 +69,8 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
                 ZipEntry libraryEntry = null;
 
                 for (final String abi : abis) {
+                    if (TextUtils.isEmpty(abi)) continue;
+
                     jniNameInApk = "lib" + File.separatorChar + abi + File.separatorChar
                             + mappedLibraryName;
                     libraryEntry = zipFile.getEntry(jniNameInApk);
