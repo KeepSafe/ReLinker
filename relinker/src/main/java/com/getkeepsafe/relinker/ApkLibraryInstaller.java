@@ -59,9 +59,9 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
     }
 
     private ZipFileInZipEntry findAPKWithLibrary(final Context context,
-                                                       final String[] abis,
-                                                       final String mappedLibraryName,
-                                                       final ReLinkerInstance instance) {
+                                                 final String[] abis,
+                                                 final String mappedLibraryName,
+                                                 final ReLinkerInstance instance) {
 
         ZipFile zipFile = null;
         for (String sourceDir : sourceDirectories(context)) {
@@ -95,6 +95,11 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
                         return new ZipFileInZipEntry(zipFile, libraryEntry);
                     }
                 }
+            }
+
+            try {
+                zipFile.close();
+            } catch (IOException ignored) {
             }
         }
 
