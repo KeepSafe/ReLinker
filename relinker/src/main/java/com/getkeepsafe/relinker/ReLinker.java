@@ -51,6 +51,10 @@ public class ReLinker {
         loadLibrary(context, library, null, null);
     }
 
+    public static void load(final Context context, final File library) {
+        load(context, library, null);
+    }
+
     public static void loadLibrary(final Context context,
                                    final String library,
                                    final String version) {
@@ -68,6 +72,12 @@ public class ReLinker {
                             final String version,
                             final ReLinker.LoadListener listener) {
         new ReLinkerInstance().loadLibrary(context, library, version, listener);
+    }
+
+    public static void load(final Context context,
+                                   final File library,
+                                   final ReLinker.LoadListener listener) {
+        new ReLinkerInstance().recursively().load(context, library, listener); //no reason for not using recursively
     }
 
     public static ReLinkerInstance force() {

@@ -86,10 +86,20 @@ public class ReLinkerInstance {
      * Utilizes the regular system call to attempt to load a native library. If a failure occurs,
      * then the function extracts native .so library out of the app's APK and attempts to load it.
      * <p>
-     *     <strong>Note: This is a synchronous operation</strong>
+     * <strong>Note: This is a synchronous operation</strong>
      */
     public void loadLibrary(final Context context, final String library) {
         loadLibrary(context, library, null, null);
+    }
+
+    /**
+     * Utilizes the regular system call to attempt to load a native library. If a failure occurs,
+     * then the function tries to load dependencies and then attempts to load it again.
+     * <p>
+     * <strong>Note: This is a synchronous operation</strong>
+     */
+    public void load(final Context context, final File library) {
+        load(context, library, null);
     }
 
     /**
@@ -111,12 +121,12 @@ public class ReLinkerInstance {
     }
 
     /**
-     * Attemps to load the given library normally. If that fails, it loads the library utilizing
+     * Attempts to load the given library normally. If that fails, it loads the library utilizing
      * a workaround.
      *
-     * @param context The {@link Context} to get a workaround directory from
-     * @param library The library you wish to load
-     * @param version The version of the library you wish to load, or {@code null}
+     * @param context  The {@link Context} to get a workaround directory from
+     * @param library  The library you wish to load
+     * @param version  The version of the library you wish to load, or {@code null}
      * @param listener {@link ReLinker.LoadListener} to listen for async execution, or {@code null}
      */
     public void loadLibrary(final Context context,
@@ -140,6 +150,45 @@ public class ReLinkerInstance {
                 public void run() {
                     try {
                         loadLibraryInternal(context, library, version);
+                        listener.success();
+                    } catch (UnsatisfiedLinkError e) {
+                        listener.failure(e);
+                    } catch (MissingLibraryException e) {
+                        listener.failure(e);
+                    }
+                }
+            }).start();
+        }
+    }
+
+    /**
+     * Attempts to load the given library normally. If that fails, it loads the library utilizing
+     * a workaround.
+     *
+     * @param context  The {@link Context} to get a workaround directory from
+     * @param library  The library file you wish to load
+     * @param listener {@link ReLinker.LoadListener} to listen for async execution, or {@code null}
+     */
+    public void load(final Context context,
+                     final File library,
+                     final ReLinker.LoadListener listener) {
+        if (context == null) {
+            throw new IllegalArgumentException("Given context is null");
+        }
+
+        if (!library.exists()) {
+            throw new IllegalArgumentException("Given library file does not exists");
+        }
+
+        log("Beginning load of %s...", library);
+        if (listener == null) {
+            loadInternal(context, library);
+        } else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        loadInternal(context, library);
                         listener.success();
                     } catch (UnsatisfiedLinkError e) {
                         listener.failure(e);
@@ -181,29 +230,63 @@ public class ReLinkerInstance {
                     libraryLoader.mapLibraryName(library), workaroundFile, this);
         }
 
+        if (recursive) {
+            loadDependencies(context, workaroundFile);
+        }
+
+        libraryLoader.loadPath(workaroundFile.getAbsolutePath());
+        loadedLibraries.add(library);
+        log("%s (%s) was re-linked!", library, version);
+    }
+
+    private void loadInternal(final Context context, final File library) {
+        String libraryPath = library.getAbsolutePath();
+        if (loadedLibraries.contains(libraryPath) && !force) {
+            log("%s already loaded previously!", libraryPath);
+            return;
+        }
+
         try {
-            if (recursive) {
-                ElfParser parser = null;
-                final List<String> dependencies;
-                try {
-                    parser = new ElfParser(workaroundFile);
-                    dependencies = parser.parseNeededDependencies();
-                }finally {
+            libraryLoader.loadPath(libraryPath);
+            loadedLibraries.add(libraryPath);
+            log("%s (%s) was loaded normally!", libraryPath);
+            return;
+        } catch (final UnsatisfiedLinkError e) {
+            // :-(
+            log("Loading the library normally failed: %s", Log.getStackTraceString(e));
+        }
+
+        log("%s (%s) was not loaded normally, re-linking...", libraryPath);
+
+        if (recursive) {
+            loadDependencies(context, library);
+        }
+
+        libraryLoader.loadPath(libraryPath);
+        loadedLibraries.add(libraryPath);
+        log("%s (%s) was re-linked!", libraryPath);
+    }
+
+    private void loadDependencies(final Context context, final File lib) {
+        try {
+            final List<String> dependencies;
+            ElfParser parser = null;
+            try {
+                parser = new ElfParser(lib);
+                dependencies = parser.parseNeededDependencies();
+            } finally {
+                if (parser != null) {
                     parser.close();
                 }
-                for (final String dependency : dependencies) {
-                    loadLibrary(context, libraryLoader.unmapLibraryName(dependency));
-                }
+            }
+            for (final String dependency : dependencies) {
+                loadLibrary(context, libraryLoader.unmapLibraryName(dependency));
             }
         } catch (IOException ignored) {
             // This a redundant step of the process, if our library resolving fails, it will likely
             // be picked up by the system's resolver, if not, an exception will be thrown by the
             // next statement, so its better to try twice.
         }
-
-        libraryLoader.loadPath(workaroundFile.getAbsolutePath());
-        loadedLibraries.add(library);
-        log("%s (%s) was re-linked!", library, version);
     }
 
     /**
@@ -237,8 +320,8 @@ public class ReLinkerInstance {
      * Cleans up any <em>other</em> versions of the {@code library}. If {@code force} is used, all
      * versions of the {@code library} are deleted
      *
-     * @param context {@link Context} to retrieve the workaround directory from
-     * @param library The name of the library to load
+     * @param context        {@link Context} to retrieve the workaround directory from
+     * @param library        The name of the library to load
      * @param currentVersion The version of the library to keep, all other versions will be deleted.
      *                       This parameter is ignored if {@code force} is used.
      */
