@@ -16,6 +16,7 @@
 package com.getkeepsafe.relinker;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.getkeepsafe.relinker.elf.ElfParser;
@@ -30,6 +31,7 @@ import java.util.Set;
 
 public class ReLinkerInstance {
     private static final String LIB_DIR = "lib";
+    private static final boolean DISABLE_VERSION = Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
 
     protected final Set<String> loadedLibraries = new HashSet<String>();
     protected final ReLinker.LibraryLoader libraryLoader;
@@ -131,15 +133,21 @@ public class ReLinkerInstance {
             throw new IllegalArgumentException("Given library is either null or empty");
         }
 
+        String adaptiveVersion = version;
+        if (DISABLE_VERSION) {
+            force = true;
+            adaptiveVersion = null;
+        }
+
         log("Beginning load of %s...", library);
         if (listener == null) {
-            loadLibraryInternal(context, library, version);
+            loadLibraryInternal(context, library, adaptiveVersion);
         } else {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        loadLibraryInternal(context, library, version);
+                        loadLibraryInternal(context, library, adaptiveVersion);
                         listener.success();
                     } catch (UnsatisfiedLinkError e) {
                         listener.failure(e);
