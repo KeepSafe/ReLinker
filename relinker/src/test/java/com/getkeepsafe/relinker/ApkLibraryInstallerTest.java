@@ -30,6 +30,7 @@ import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,6 +59,25 @@ public class ApkLibraryInstallerTest {
         installer.installLibrary(context, abis, "libtest.so", destination, instance);
         verify(context).getApplicationInfo();
         assertThat(fileToString(destination), is("works!"));
+    }
+
+    @Test
+    public void throwsMissingLibraryExceptionWhenABIIsMissing() throws IOException {
+        final Context context = mock(Context.class);
+        final ApplicationInfo appInfo = mock(ApplicationInfo.class);
+        final ReLinkerInstance instance = mock(ReLinkerInstance.class);
+        final ApkLibraryInstaller installer = new ApkLibraryInstaller();
+        final File destination = tempFolder.newFile("test");
+        final String[] abis = new String[] {"armeabi-v7a"}; // For unit test running on a developer machine this is normally x86
+
+        when(context.getApplicationInfo()).thenReturn(appInfo);
+        appInfo.sourceDir = getClass().getResource("/fake.apk").getFile();
+
+        try {
+            installer.installLibrary(context, abis, "libtest.so", destination, instance);
+        } catch (MissingLibraryException e) {
+            assertEquals("Could not find 'libtest.so'. Looked for: [armeabi-v7a], but only found: [x86].", e.getMessage());
+        }
     }
 
     private String fileToString(final File file) throws IOException {
