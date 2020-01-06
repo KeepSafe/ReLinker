@@ -26,6 +26,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -106,6 +111,36 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
         return null;
     }
 
+    // Loop over all APK's again in order to detect which ABI's are actually supported.
+    // This second loop is more expensive than trying to find a specific ABI, so it should
+    // only be ran when no matching libraries are found. This should keep the overhead of
+    // the happy path to a minimum.
+    private String[] getSupportedABIs(Context context, String mappedLibraryName) {
+        String p = "lib" + File.separatorChar + "([^\\" + File.separatorChar + "]*)" + File.separatorChar + mappedLibraryName;
+        Pattern pattern = Pattern.compile(p);
+        ZipFile zipFile;
+        Set<String> supportedABIs = new HashSet<String>();
+        for (String sourceDir : sourceDirectories(context)) {
+            try {
+                zipFile = new ZipFile(new File(sourceDir), ZipFile.OPEN_READ);
+            } catch (IOException ignored) {
+                continue;
+            }
+
+            Enumeration<? extends ZipEntry> elements = zipFile.entries();
+            while (elements.hasMoreElements()) {
+                ZipEntry el = elements.nextElement();
+                Matcher match = pattern.matcher(el.getName());
+                if (match.matches()) {
+                    supportedABIs.add(match.group(1));
+                }
+            }
+        }
+
+        String[] result = new String[supportedABIs.size()];
+        return supportedABIs.toArray(result);
+    }
+
     /**
      * Attempts to unpack the given library to the given destination. Implements retry logic for
      * IO operations to ensure they succeed.
@@ -124,8 +159,18 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
         try {
             found = findAPKWithLibrary(context, abis, mappedLibraryName, instance);
             if (found == null) {
-                // Does not exist in any APK
-                throw new MissingLibraryException(mappedLibraryName);
+                // Does not exist in any APK. Report exactly what ReLinker is looking for and
+                // what is actually supported by the APK.
+                String[] supportedABIs;
+                try {
+                    supportedABIs = getSupportedABIs(context, mappedLibraryName);
+                } catch (Exception e) {
+                    // Should never happen as this indicates a bug in ReLinker code, but just to be safe.
+                    // User code should only ever crash with a MissingLibraryException if getting this far.
+                    supportedABIs = new String[1];
+                    supportedABIs[0] = e.toString();
+                }
+                throw new MissingLibraryException(mappedLibraryName, abis, supportedABIs);
             }
 
             int tries = 0;
