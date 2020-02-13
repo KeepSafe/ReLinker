@@ -35,6 +35,12 @@ ReLinker fixes these issues by replacing the standard `System.loadLibrary` call 
 
 Note that this library fixes intermittent link errors; if you get an error every time you use your app, you may have a configuration issue. See [this StackOverflow question](http://stackoverflow.com/questions/27421134/system-loadlibrary-couldnt-find-native-library-in-my-case) for more information.
 
+## Who needs ReLinker?
+
+If your app includes native libraries, and your minimum SDK is below API 23 (Marshmallow), you need ReLinker.
+
+There are a number of different bugs addressed by ReLinker; the last of these was resolved as of Marshmallow.  As long as your app's min SDK is at or above it, loading libraries via `System.loadLibrary("foo")` is safe.
+
 ## Installation
 
 ReLinker is distributed using [jcenter](https://bintray.com/keepsafesoftware/Android/ReLinker/view).

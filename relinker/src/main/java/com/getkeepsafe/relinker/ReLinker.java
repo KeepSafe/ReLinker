@@ -22,7 +22,7 @@ import java.io.File;
 /**
  * ReLinker is a small library to help alleviate {@link UnsatisfiedLinkError} exceptions thrown due
  * to Android's inability to properly install / load native libraries for Android versions before
- * API 21
+ * API 23.
  */
 public class ReLinker {
     public interface LoadListener {
