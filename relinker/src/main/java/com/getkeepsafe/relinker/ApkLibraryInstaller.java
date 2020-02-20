@@ -68,8 +68,8 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
                                                  final String mappedLibraryName,
                                                  final ReLinkerInstance instance) {
 
-        ZipFile zipFile = null;
         for (String sourceDir : sourceDirectories(context)) {
+            ZipFile zipFile = null;
             int tries = 0;
             while (tries++ < MAX_TRIES) {
                 try {
