@@ -1,20 +1,18 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: "com.vanniktech.maven.publish"
 
-group = 'com.getkeepsafe.relinker'
-version = '1.4.1'
+group = project.properties["GROUP"]
+version = project.properties["VERSION_NAME"]
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 30
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
     }
 
     defaultConfig {
-        //noinspection MinSdkTooLow
         minSdkVersion 9
     }
     testOptions {
@@ -30,8 +28,8 @@ android {
 }
 
 dependencies {
-    testImplementation "org.robolectric:robolectric:4.0.2"
-    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:4.5.1"
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-all:1.10.19'
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
 }
@@ -69,7 +67,7 @@ install {
     }
 }
 
-bintray {
+/*bintray {
     user = project.hasProperty('bintray.user') ? project.property('bintray.user') : ''
     key = project.hasProperty('bintray.apikey') ? project.property('bintray.apikey') : ''
     configurations = ['archives']
@@ -87,7 +85,7 @@ bintray {
             vcsTag = project.version
         }
     }
-}
+}*/
 
 // build a jar with source files
 task sourcesJar(type: Jar) {
@@ -111,3 +109,31 @@ artifacts {
     archives sourcesJar
     archives javadocJar
 }
+
+def getGpgKey() {
+    return hasProperty("signingKey") ? signingKey : ""
+}
+
+def getGpgPassword() {
+    return hasProperty("signingKeyPassword") ? signingKeyPassword : ""
+}
+
+mavenPublish {
+    releaseSigningEnabled = !getGpgKey().isEmpty() && !getGpgPassword().isEmpty()
+    targets {
+        testMaven {
+            releaseRepositoryUrl = file("${rootProject.buildDir}/localMaven").toURI().toString()
+            snapshotRepositoryUrl = file("${rootProject.buildDir}/localMaven").toURI().toString()
+        }
+    }
+}
+
+signing {
+    def signingKey = getGpgKey()
+    def password = getGpgPassword()
+    if (!signingKey.isEmpty() && !password.isEmpty()) {
+        useInMemoryPgpKeys(signingKey, password)
+    }
+}
+
+
