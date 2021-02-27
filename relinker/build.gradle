@@ -55,29 +55,3 @@ artifacts {
     archives sourcesJar
     archives javadocJar
 }
-
-def getGpgKey() {
-    return hasProperty("signingKey") ? signingKey : ""
-}
-
-def getGpgPassword() {
-    return hasProperty("signingKeyPassword") ? signingKeyPassword : ""
-}
-
-mavenPublish {
-    releaseSigningEnabled = !getGpgKey().isEmpty() && !getGpgPassword().isEmpty()
-    targets {
-        testMaven {
-            releaseRepositoryUrl = file("${rootProject.buildDir}/localMaven").toURI().toString()
-            snapshotRepositoryUrl = file("${rootProject.buildDir}/localMaven").toURI().toString()
-        }
-    }
-}
-
-signing {
-    def signingKey = getGpgKey()
-    def password = getGpgPassword()
-    if (!signingKey.isEmpty() && !password.isEmpty()) {
-        useInMemoryPgpKeys(signingKey, password)
-    }
-}
