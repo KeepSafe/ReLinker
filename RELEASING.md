@@ -12,7 +12,6 @@ We currently deploy to Maven Central (via Sonatype's OSS Nexus instance).
 
 1. A *published* GPG code-signing key
 1. A Sonatype Nexus OSS account with permission to publish in com.getkeepsafe
-1. A plugins.gradle.org account with permission to publish in com.getkeepsafe
 1. Permission to push directly to https://github.com/KeepSafe/ReLinker
 
 ### Setup

@@ -15,6 +15,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // TODO: Remove this repository when Android build tools no longer transitively pulls
+        //  `trove4j` or if it's properly published in Maven Central when JCenter goes away.
+        //  See: https://github.com/KeepSafe/ReLinker/pull/81#issuecomment-787525670
         gradlePluginPortal()
     }
 }
