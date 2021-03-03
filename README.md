@@ -4,7 +4,7 @@
 </h1>
 
 [![Build Status](https://travis-ci.org/KeepSafe/ReLinker.svg?branch=master)](https://travis-ci.org/KeepSafe/ReLinker) [![Release](https://img.shields.io/github/tag/KeepSafe/ReLinker.svg?label=jitpack)](https://jitpack.io/#KeepSafe/ReLinker)
-[![Download](https://api.bintray.com/packages/keepsafesoftware/Android/ReLinker/images/download.svg) ](https://bintray.com/keepsafesoftware/Android/ReLinker/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.getkeepsafe.relinker/relinker/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.getkeepsafe.relinker/relinker)
 
 
 A robust native library loader for Android. More information can be found in our [blog post](https://medium.com/keepsafe-engineering/the-perils-of-loading-native-libraries-on-android-befa49dce2db)
@@ -43,15 +43,15 @@ There are a number of different bugs addressed by ReLinker; the last of these wa
 
 ## Installation
 
-ReLinker is distributed using [jcenter](https://bintray.com/keepsafesoftware/Android/ReLinker/view).
+ReLinker is distributed using [MavenCentral](https://search.maven.org/artifact/com.getkeepsafe.relinker/relinker).
 
 ```groovy
    repositories { 
-        jcenter()
+        mavenCentral()
    }
    
    dependencies {
-         compile 'com.getkeepsafe.relinker:relinker:1.4.1'
+         compile 'com.getkeepsafe.relinker:relinker:1.4.3'
    }
 ```
 

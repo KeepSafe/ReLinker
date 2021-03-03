@@ -51,21 +51,21 @@ We currently deploy to Maven Central (via Sonatype's OSS Nexus instance).
    ```bash
    git commit -S -m "Release version X.Y.Z"
    ```
-1. Make a *signed* tag ()check existing tags for message format):
+1. Make a *signed* tag:
    ```bash
-   git tag -S -a X.Y.Z
+   git tag -s -a X.Y.Z
    ```
 1. Upload binaries to Sonatype:
    ```bash
    ./gradlew publish
    ```
-1. Go to oss.sonatype.org, log in with your credentials
+1. Go to [Sonatype](https://oss.sonatype.org/), log in with your credentials
 1. Click "Staging Repositories"
 1. Find the "comgetkeepsafe" repo, usually at the bottom of the list
 1. "Close" the repository (select it then click the "close" button up top), the text field doesn't matter so put whatever you want in it
 1. Wait until that's done
 1. "Release" the repository, leave the checkbox checked.  Hooray, we're in Maven Central now!
-1. Push all of our work to Github to make it official:
+1. Push all of our work to Github to make it official. Check previous [releases](https://github.com/KeepSafe/ReLinker/releases) and edit tag release changes:
    ```bash
    git push --tags origin master
    ```
