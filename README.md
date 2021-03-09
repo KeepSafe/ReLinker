@@ -10,8 +10,8 @@
 A robust native library loader for Android. More information can be found in our [blog post](https://medium.com/keepsafe-engineering/the-perils-of-loading-native-libraries-on-android-befa49dce2db)
 
  **Min SDK:** 9
- 
- [JavaDoc](https://jitpack.io/com/github/KeepSafe/Relinker/1.4.1/javadoc/overview-summary.html)
+
+ [JavaDoc](https://jitpack.io/com/github/KeepSafe/Relinker/latest/javadoc/)
 
 ## Overview
 

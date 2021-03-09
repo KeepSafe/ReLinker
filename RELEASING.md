@@ -2,8 +2,8 @@ How To Release
 ==============
 
 Due to Maven Central's very particular requirements, the release process is a bit
-elaborate and requires a good deal of local configuration.  This guide should walk
-you through it.  It won't do anyone outside of KeepSafe any good, but the workflow
+elaborate and requires a good deal of local configuration. This guide should walk
+you through it. It won't do anyone outside of KeepSafe any good, but the workflow
 is representative of just about any project deploying via Sonatype.
 
 We currently deploy to Maven Central (via Sonatype's OSS Nexus instance).
