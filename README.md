@@ -3,8 +3,9 @@
 	ReLinker
 </h1>
 
-[![Build Status](https://travis-ci.org/KeepSafe/ReLinker.svg?branch=master)](https://travis-ci.org/KeepSafe/ReLinker) [![Release](https://img.shields.io/github/tag/KeepSafe/ReLinker.svg?label=jitpack)](https://jitpack.io/#KeepSafe/ReLinker)
+[![Build Status](https://travis-ci.org/KeepSafe/ReLinker.svg?branch=master)](https://travis-ci.org/KeepSafe/ReLinker)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.getkeepsafe.relinker/relinker/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.getkeepsafe.relinker/relinker)
+[![Release](https://img.shields.io/github/tag/KeepSafe/ReLinker.svg?label=jitpack)](https://jitpack.io/#KeepSafe/ReLinker)
 
 
 A robust native library loader for Android. More information can be found in our [blog post](https://medium.com/keepsafe-engineering/the-perils-of-loading-native-libraries-on-android-befa49dce2db)
