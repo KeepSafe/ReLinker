@@ -51,7 +51,7 @@ ReLinker is distributed using [MavenCentral](https://search.maven.org/artifact/c
    }
    
    dependencies {
-         compile 'com.getkeepsafe.relinker:relinker:1.4.3'
+         compile 'com.getkeepsafe.relinker:relinker:x.x.x'
    }
 ```
 
