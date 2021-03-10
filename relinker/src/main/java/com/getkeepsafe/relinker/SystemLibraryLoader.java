@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015 - 2016 KeepSafe Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
  */
 package com.getkeepsafe.relinker;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 @SuppressWarnings("deprecation")
@@ -24,6 +25,7 @@ final class SystemLibraryLoader implements ReLinker.LibraryLoader {
         System.loadLibrary(libraryName);
     }
 
+    @SuppressLint ("UnsafeDynamicallyLoadedCode")
     @Override
     public void loadPath(final String libraryPath) {
         System.load(libraryPath);
@@ -40,14 +42,14 @@ final class SystemLibraryLoader implements ReLinker.LibraryLoader {
     }
 
     @Override
-    public String unmapLibraryName(String mappedLibraryName) {
+    public String unmapLibraryName(final String mappedLibraryName) {
         // Assuming libname.so
         return mappedLibraryName.substring(3, mappedLibraryName.length() - 3);
     }
 
     @Override
     public String[] supportedAbis() {
-        if (Build.VERSION.SDK_INT >= 21 && Build.SUPPORTED_ABIS.length > 0) {
+        if (21 <= Build.VERSION.SDK_INT && 0 < Build.SUPPORTED_ABIS.length) {
             return Build.SUPPORTED_ABIS;
         } else if (!TextUtils.isEmpty(Build.CPU_ABI2)) {
             return new String[] {Build.CPU_ABI, Build.CPU_ABI2};

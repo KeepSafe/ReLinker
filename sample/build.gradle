@@ -5,8 +5,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 30
 
     sourceSets {
         main {
@@ -18,7 +17,7 @@ android {
         applicationId "com.getkeepsafe.relinker.sample"
         //noinspection MinSdkTooLow
         minSdkVersion 9
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
     }
@@ -31,7 +30,7 @@ android {
 }
 
 dependencies {
-    compile project(':relinker')
-    testCompile 'junit:junit:4.12'
+    implementation project(':relinker')
+    testImplementation 'junit:junit:4.13.2'
 }
 

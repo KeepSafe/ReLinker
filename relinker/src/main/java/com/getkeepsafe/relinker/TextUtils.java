@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015 - 2016 KeepSafe Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,9 @@ package com.getkeepsafe.relinker;
  * avoid depending on android.text.TextUtils.
  */
 final class TextUtils {
+    private TextUtils() {
+    }
+
     /**
      * Returns true if the string is null or 0-length.
      *
