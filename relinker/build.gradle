@@ -3,11 +3,10 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.vanniktech.maven.publish'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 30
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_6
-        targetCompatibility JavaVersion.VERSION_1_6
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
@@ -27,8 +26,8 @@ android {
 }
 
 dependencies {
-    testImplementation "org.robolectric:robolectric:4.0.2"
-    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:4.5.1"
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-all:1.10.19'
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
 }
