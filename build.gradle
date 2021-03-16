@@ -1,3 +1,7 @@
+wrapper {
+    gradleVersion = '6.8.3'
+    distributionType = Wrapper.DistributionType.BIN
+}
 buildscript {
     repositories {
         google()
