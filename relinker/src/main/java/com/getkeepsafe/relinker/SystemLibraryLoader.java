@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015 - 2016 KeepSafe Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
  */
 package com.getkeepsafe.relinker;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 @SuppressWarnings("deprecation")
@@ -24,6 +25,7 @@ final class SystemLibraryLoader implements ReLinker.LibraryLoader {
         System.loadLibrary(libraryName);
     }
 
+    @SuppressLint ("UnsafeDynamicallyLoadedCode")
     @Override
     public void loadPath(final String libraryPath) {
         System.load(libraryPath);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015 - 2016 KeepSafe Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
  */
 package com.getkeepsafe.relinker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
@@ -148,6 +149,7 @@ public class ApkLibraryInstaller implements ReLinker.LibraryInstaller {
      * @param context {@link Context} to describe the location of the installed APK file
      * @param mappedLibraryName The mapped name of the library file to load
      */
+    @SuppressLint ("SetWorldReadable")
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void installLibrary(final Context context,
