@@ -74,7 +74,7 @@ public class ReLinkerInstance {
     }
 
     /**
-     * Enables recursive library loading to resolve and load shared object / shared object
+     * Enables recursive library loading to resolve and load shared object -&gt; shared object
      * defined dependencies
      */
     public ReLinkerInstance recursively() {
