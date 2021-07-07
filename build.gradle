@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.2'
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.16.0'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.17.0'
     }
 }
 
