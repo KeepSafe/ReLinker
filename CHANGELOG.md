@@ -4,11 +4,13 @@
 
 Prepend the changelog with this template on every release.
 
-# [Unreleased]
+## [Unreleased]
 - Changes (<PR #>)
 
 -->
+
 ## [Unreleased]
+- Added null check when closing the parser (#99)
 
 ## [1.4.4] - Released July 9, 2021
 - Removed reliance on JCenter (#87)

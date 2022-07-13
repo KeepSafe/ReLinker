@@ -188,7 +188,7 @@ public class ReLinkerInstance {
                 try {
                     parser = new ElfParser(workaroundFile);
                     dependencies = parser.parseNeededDependencies();
-                }finally {
+                } finally {
                     if (parser != null) {
                         parser.close();
                     }

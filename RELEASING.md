@@ -65,7 +65,7 @@ We currently deploy to Maven Central (via Sonatype's OSS Nexus instance).
    ```
 1. Wait until that's done. It takes a while to publish and be available in [MavenCentral](https://repo.maven.apache.org/maven2/com/getkeepsafe/). Monitor until the latest published version is visible.
 1. Hooray, we're in Maven Central now!
-1. Push all of our work to Github to make it official. Check previous [releases](https://github.com/KeepSafe/Cashier/releases) and edit tag release changes:
+1. Push all of our work to Github to make it official. Check previous [releases](https://github.com/KeepSafe/ReLinker/releases) and edit tag release changes:
    ```bash
    git push --tags origin master
    ```
