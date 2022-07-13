@@ -10,6 +10,8 @@ Prepend the changelog with this template on every release.
 -->
 
 ## [Unreleased]
+
+## [1.4.5] - Released July 13, 2022
 - Added null check when closing the parser (#99)
 
 ## [1.4.4] - Released July 9, 2021
