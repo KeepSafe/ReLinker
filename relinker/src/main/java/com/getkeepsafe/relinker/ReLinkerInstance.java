@@ -23,15 +23,15 @@ import com.getkeepsafe.relinker.elf.ElfParser;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ReLinkerInstance {
     private static final String LIB_DIR = "lib";
 
-    protected final Set<String> loadedLibraries = new HashSet<String>();
+    protected final Set<String> loadedLibraries = new CopyOnWriteArraySet<String>();
     protected final ReLinker.LibraryLoader libraryLoader;
     protected final ReLinker.LibraryInstaller libraryInstaller;
 
